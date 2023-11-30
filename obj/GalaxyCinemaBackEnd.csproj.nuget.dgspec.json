@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackend\\GalaxyCinemaBackEnd.csproj": {}
+    "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj": {}
   },
   "projects": {
-    "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackend\\GalaxyCinemaBackEnd.csproj": {
+    "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackend\\GalaxyCinemaBackEnd.csproj",
+        "projectUniqueName": "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj",
         "projectName": "GalaxyCinemaBackEnd",
-        "projectPath": "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackend\\GalaxyCinemaBackEnd.csproj",
-        "packagesPath": "C:\\Users\\joelr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackend\\obj\\",
+        "projectPath": "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\joelr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://202.58.182.74/BinusNuget/nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -41,6 +44,26 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[6.0.24, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.24, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.12, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.12, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
@@ -65,7 +88,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }
