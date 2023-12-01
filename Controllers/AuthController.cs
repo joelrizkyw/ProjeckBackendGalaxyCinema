@@ -1,6 +1,8 @@
-﻿using GalaxyCinemaBackEnd.Data;
+﻿using Azure;
+using GalaxyCinemaBackEnd.Data;
 using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
 using GalaxyCinemaBackEnd.Models.Request;
+using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -194,16 +196,26 @@ namespace GalaxyCinemaBackEnd.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = tokenHandler.WriteToken(token);
 
-            var JWTResponse = new
+            var loginResponse = new LoginResponse
             {
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
+                Status = 200,
                 Message = "Success",
                 Token = jwtToken,
-                Expiration = expires
+                TokenExpiration = expires,
+                User = new UserDetail
+                {
+                    Id = user.UserID,
+                    Name = user.Name,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Gender = user.Gender,
+                    Birthdate = user.Birthdate
+                }
+
             };
 
-            return Ok(JWTResponse);
+
+            return Ok(loginResponse);
         }
     }
 }
