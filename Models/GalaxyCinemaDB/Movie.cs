@@ -19,7 +19,7 @@ namespace GalaxyCinemaBackEnd.Models.GalaxyCinemaDB
         [Required]
         public string Synopsis { get; set; }
 
-        public int? Duration { get; set; }
+        public int Duration { get; set; }
 
         [Required]
         public DateTime ReleaseDate { get; set; }
