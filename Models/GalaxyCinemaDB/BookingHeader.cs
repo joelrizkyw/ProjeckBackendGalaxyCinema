@@ -9,7 +9,7 @@ namespace GalaxyCinemaBackEnd.Models.GalaxyCinemaDB
         public int BookingHeaderID { get; set; }
         [Required]
 
-        public string UserID { get; set; }
+        public Guid UserID { get; set; }
         [Required]
 
         public int ScheduleID { get; set; }

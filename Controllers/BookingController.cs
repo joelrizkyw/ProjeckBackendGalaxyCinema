@@ -1,7 +1,9 @@
 ﻿using GalaxyCinemaBackEnd.Data;
 using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
+using GalaxyCinemaBackEnd.Models.Request;
 using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
+using GalaxyCinemaBackEnd.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -14,13 +16,17 @@ namespace GalaxyCinemaBackEnd.Controllers
     public class BookingController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
-        public BookingController(ApplicationDbContext db)
+        private readonly IBookingPaymentService _bookingPaymentService;
+
+
+        public BookingController(ApplicationDbContext db, IBookingPaymentService bookingPaymentService)
         {
             _db = db;
+            _bookingPaymentService = bookingPaymentService;
         }
 
         [HttpGet("getSeat")]
-        public async Task<ActionResult<object>> Get(int scheduleID)
+        public async Task<ActionResult<object>> GetSeat(int scheduleID)
         {
             var unavailableSeat = await (from bh in _db.BookingHeader
                                          join bd in _db.BookingDetail on bh.BookingHeaderID equals bd.BookingHeaderID
@@ -28,15 +34,15 @@ namespace GalaxyCinemaBackEnd.Controllers
                                          select bd.StudioSeatID).ToArrayAsync();
 
             var studioSeats = await (from st in _db.Studio
-                                    join ss in _db.StudioSeat on st.StudioID equals ss.StudioID
-                                    join sc in _db.Schedule on st.StudioID equals sc.StudioID
-                                    where sc.ScheduleID == scheduleID
-                                    select new
-                                    {
-                                        StudioSeatID = ss.StudioSeatID,
-                                        StudioID = ss.StudioID,
-                                        Name = ss.Name
-                                    }).ToListAsync();
+                                     join ss in _db.StudioSeat on st.StudioID equals ss.StudioID
+                                     join sc in _db.Schedule on st.StudioID equals sc.StudioID
+                                     where sc.ScheduleID == scheduleID
+                                     select new
+                                     {
+                                         StudioSeatID = ss.StudioSeatID,
+                                         StudioID = ss.StudioID,
+                                         Name = ss.Name
+                                     }).ToListAsync();
 
             var getSeatResponse = new GetSeatResponse
             {
@@ -56,7 +62,7 @@ namespace GalaxyCinemaBackEnd.Controllers
             };
 
 
-        var response = new APIResponse<object>
+            var response = new APIResponse<object>
             {
                 Status = 200,
                 Message = "Success",
@@ -64,6 +70,42 @@ namespace GalaxyCinemaBackEnd.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpPost("add")]
+        public async Task<ActionResult<object>> AddBooking([FromBody] AddBookingRequest req)
+        {
+            try
+            {
+                var responseAddBooking = await _bookingPaymentService.AddBooking(req);
+ 
+
+                if (responseAddBooking.Status == 200)
+                {
+                    var newPaymentRequest = new AddPaymentRequest
+                    {
+                        BookingHeaderID = (int)responseAddBooking.Data,
+                        ScheduleID = req.ScheduleID,
+                        SeatQty = req.seatID.Count
+                    };
+                    var responseAddPayment = await _bookingPaymentService.AddPayment(newPaymentRequest);
+
+                    return StatusCode(responseAddPayment.Status, responseAddPayment);
+                }
+                return StatusCode(responseAddBooking.Status, responseAddBooking);
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception or handle it appropriately
+                    var errorResponse = new APIResponse<object>
+                    {
+                        Status = 500,
+                        Message = "Internal Server Error",
+                        Data = null
+                    };
+                    return StatusCode(errorResponse.Status, errorResponse);
+                }
+
         }
     }
 }
