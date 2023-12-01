@@ -5,7 +5,7 @@ namespace GalaxyCinemaBackEnd.Models.GalaxyCinemaDB
     public class User
     {
         [Key]
-        public string UserID { get; set; }
+        public Guid UserID { get; set; }
 
         [Required]
         [RegularExpression("^(User|Admin)$", ErrorMessage = "Invalid role.")]
@@ -20,6 +20,13 @@ namespace GalaxyCinemaBackEnd.Models.GalaxyCinemaDB
 
         [Required]
         public string PhoneNumber { get; set; }
+
+        [Required]
+        [RegularExpression("^(Male|Female)$", ErrorMessage = "Invalid gender.")]
+        public string Gender { get; set; }
+
+        [Required]
+        public DateTime Birthdate { get; set; }
 
         [Required]
         public string Password { get; set; }

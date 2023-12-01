@@ -2,7 +2,7 @@
 {
     public class GetSeatResponse
     {
-        public List<RowSeatDetail> SeatDetails { get; set; }
+        public List<RowSeatDetail> Data { get; set; }
     }
 
     public class RowSeatDetail
@@ -17,4 +17,5 @@
         public string SeatName { get; set; }
         public bool IsAvail { get; set; }
     }
+
 }
