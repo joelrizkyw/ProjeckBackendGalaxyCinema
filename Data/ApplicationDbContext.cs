@@ -1,4 +1,4 @@
-﻿using GalaxyCinemaBackEnd.Models;
+﻿using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
 using Microsoft.EntityFrameworkCore;
 
 namespace GalaxyCinemaBackEnd.Data
