@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj": {}
+    "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackEnd\\GalaxyCinemaBackEnd.csproj": {}
   },
   "projects": {
-    "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj": {
+    "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackEnd\\GalaxyCinemaBackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj",
+        "projectUniqueName": "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackEnd\\GalaxyCinemaBackEnd.csproj",
         "projectName": "GalaxyCinemaBackEnd",
-        "projectPath": "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\GalaxyCinemaBackEnd.csproj",
-        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-        "outputPath": "D:\\ITDiv\\AMJS 2024\\Recruitment\\Projects\\Project 2 - React, React Native, SE\\SE - NextJs, ASP\\Code\\ProjeckBackendGalaxyCinema\\obj\\",
+        "projectPath": "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackEnd\\GalaxyCinemaBackEnd.csproj",
+        "packagesPath": "C:\\Users\\joelr\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\joelr\\OneDrive\\Documents\\School\\BINUS\\Materi S2\\IT Division 2024\\Projek Area Kerja\\SE\\Projek\\GalaxyCinemaBackEnd\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\joelr\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -26,6 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "http://202.58.182.74/BinusNuget/nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -88,7 +85,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.402\\RuntimeIdentifierGraph.json"
         }
       }
     }
