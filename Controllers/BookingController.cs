@@ -1,5 +1,6 @@
 ﻿using GalaxyCinemaBackEnd.Data;
 using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
+using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ namespace GalaxyCinemaBackEnd.Controllers
             _db = db;
         }
 
-        [HttpGet("getseat")]
+        [HttpGet("getSeat")]
         public async Task<ActionResult<object>> Get(int scheduleID)
         {
             var unavailableSeat = await (from bh in _db.BookingHeader
@@ -37,25 +38,30 @@ namespace GalaxyCinemaBackEnd.Controllers
                                         Name = ss.Name
                                     }).ToListAsync();
 
-            var data = studioSeats.GroupBy(ss => ss.Name.Substring(0,1))
-                                    .Select(group => new
-                                    {
-                                        row = group.Key,
-                                        seatDetail = group.Select(ss => new
-                                        {
-                                            id = ss.StudioSeatID,
-                                            seatName = ss.Name,
-                                            isAvail = !unavailableSeat.Contains(ss.StudioSeatID)
-                                        }).ToList()
-                                    }).ToList();
+            var getSeatResponse = new GetSeatResponse
+            {
+                Data = studioSeats
+                        .GroupBy(ss => ss.Name.Substring(0, 1))
+                        .Select(rowSeatDetail => new RowSeatDetail
+                        {
+                            Row = rowSeatDetail.Key,
+                            SeatDetail = rowSeatDetail.Select(seatDetail => new SeatDetail
+                            {
+                                Id = seatDetail.StudioSeatID,
+                                SeatName = seatDetail.Name,
+                                IsAvail = !unavailableSeat.Contains(seatDetail.StudioSeatID)
+                            }).ToList()
+                        }).ToList()
+
+            };
 
 
 
-            var response = new APIResponse<object>
+        var response = new APIResponse<object>
             {
                 Status = 200,
                 Message = "Success",
-                Data = data
+                Data = getSeatResponse.Data
             };
             return Ok(response);
 
