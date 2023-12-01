@@ -1,4 +1,5 @@
 using GalaxyCinemaBackEnd.Data;
+using GalaxyCinemaBackEnd.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -83,6 +84,8 @@ builder.Services.AddCors(options =>
                .AllowAnyMethod();
     });
 });
+
+builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
 
 var app = builder.Build();
 
