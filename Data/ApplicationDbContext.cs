@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GalaxyCinemaBackEnd.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GalaxyCinemaBackEnd.Data
 {
@@ -8,7 +9,15 @@ namespace GalaxyCinemaBackEnd.Data
         {
 
         }
-        public DbSet<User> MsUser { get; set; }
-        public DbSet<Category> MsCategory { get; set; }
+        public DbSet<BookingDetail> BookingDetail { get; set; }
+        public DbSet<BookingHeader> BookingHeader { get; set; }
+        public DbSet<Movie> Movie { get; set; }
+        public DbSet<Payment> Payment { get; set; }
+        public DbSet<Schedule> Schedule { get; set; }
+        public DbSet<Studio> Studio { get; set; }
+        public DbSet<StudioPrice> StudioPrice { get; set; }
+        public DbSet<StudioSeat> StudioSeat { get; set; }
+        public DbSet<Theater> Theater { get; set; }
+        public DbSet<User> User { get; set; }
     }
 }
