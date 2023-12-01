@@ -56,15 +56,14 @@ namespace GalaxyCinemaBackEnd.Controllers
             };
 
 
-
         var response = new APIResponse<object>
             {
                 Status = 200,
                 Message = "Success",
                 Data = getSeatResponse.Data
             };
-            return Ok(response);
 
+            return Ok(response);
         }
     }
 }

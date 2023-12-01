@@ -15,6 +15,7 @@ namespace GalaxyCinemaBackEnd.Data
         public DbSet<Payment> Payment { get; set; }
         public DbSet<Schedule> Schedule { get; set; }
         public DbSet<Studio> Studio { get; set; }
+        public DbSet<StudioType> StudioType { get; set; }
         public DbSet<StudioPrice> StudioPrice { get; set; }
         public DbSet<StudioSeat> StudioSeat { get; set; }
         public DbSet<Theater> Theater { get; set; }
