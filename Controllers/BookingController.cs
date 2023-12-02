@@ -107,5 +107,33 @@ namespace GalaxyCinemaBackEnd.Controllers
                 }
 
         }
+
+        [HttpGet("getBookingHistory")]
+        public async Task<ActionResult<IEnumerable<GetBookingHistoryResponse>>> GetBookingHistory(Guid userID)
+        {
+            var historyData = await (from bh in _db.BookingHeader
+                              join s in _db.Schedule on bh.ScheduleID equals s.ScheduleID
+                              join mov in _db.Movie on s.MovieID equals mov.MovieID
+                              join st in _db.Studio on s.StudioID equals st.StudioID
+                              where bh.UserID == userID
+                              select new GetBookingHistoryResponse
+                              {
+                                  BookingHeaderId = bh.BookingHeaderID,
+                                  StudioName = st.Name,
+                                  MovieTitle = mov.Title,
+                                  Poster = mov.Poster,
+                                  BookingDate = bh.BookingDate,
+                                  ScheduleTimeStart = s.TimeStart
+                              }).ToListAsync();
+
+            var response = new APIResponse<IEnumerable<GetBookingHistoryResponse>>
+            {
+                Status = 200,
+                Message = "Success",
+                Data = historyData
+            };
+
+            return Ok(response);
+        }
     }
 }
