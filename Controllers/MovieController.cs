@@ -4,6 +4,8 @@ using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace GalaxyCinemaBackEnd.Controllers
@@ -82,15 +84,41 @@ namespace GalaxyCinemaBackEnd.Controllers
         }
 
         [HttpGet("getMovieSchedule")]
-        public async Task<ActionResult<GetScheduleResponse>> GetMovieSchedule(int scheduleID)
+        public async Task<ActionResult<IEnumerable<GetScheduleResponse>>> GetMovieSchedule(int movieID)
         {
+
+            var movieTimeStart = await (from sch in _db.Schedule
+                                        where sch.MovieID == movieID
+                                        select sch.TimeStart).ToListAsync();
+
+            var movieDayTypes = movieTimeStart.Select(date =>
+            {
+                if (date.DayOfWeek == DayOfWeek.Friday)
+                {
+                    return "Friday";
+                }
+
+                else if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    return "Weekends";
+                }
+
+                else
+                {
+                    return "Weekdays(without friday)";
+                }
+            }).ToList();
+
+            var uniqueMovieDayTypes = movieDayTypes.Distinct().ToList();
+
+            // Debug.WriteLine("Isi list = " + string.Join(", ", uniqueMovieDayTypes));
 
             var movieSchedule = await (from sch in _db.Schedule
                                        join mov in _db.Movie on sch.MovieID equals mov.MovieID
                                        join st in _db.Studio on sch.StudioID equals st.StudioID
                                        join stype in _db.StudioType on st.StudioTypeID equals stype.StudioTypeId
                                        join sp in _db.StudioPrice on st.StudioID equals sp.StudioID
-                                       where sch.ScheduleID == scheduleID
+                                       where sch.MovieID == movieID && uniqueMovieDayTypes.Contains(sp.CategoryDays)
                                        select new GetScheduleResponse
                                        {
                                            ScheduleId = sch.ScheduleID,
