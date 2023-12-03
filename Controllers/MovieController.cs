@@ -62,6 +62,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                             Poster = mov.Poster,
                             Synopsis = mov.Synopsis,
                             Duration = mov.Duration,
+                            Rating = mov.Rating,
                             IsPlaying = mov.ReleaseDate < DateTime.Now,
                             Casts = mov.Casts,
                             Writer = mov.Writer
@@ -69,8 +70,14 @@ namespace GalaxyCinemaBackEnd.Controllers
 
             if (movie == null)
             {
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 404,
+                    Message = "Movie Not Found",
+                    Data = null
+                };
 
-                return NotFound("Movie not found!");
+                return NotFound(errorResponse);
             }
 
             var response = new APIResponse<GetMovieResponse>

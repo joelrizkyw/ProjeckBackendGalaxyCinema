@@ -11,6 +11,7 @@
         public Boolean IsPlaying { get; set; }
         public string Casts { get; set; }
         public string Writer { get; set; }
+        public string Rating { get; set; }
 
     }
 }
