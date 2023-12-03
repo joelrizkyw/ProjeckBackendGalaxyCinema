@@ -22,101 +22,87 @@ namespace GalaxyCinemaBackEnd.Services
 
         public async Task<APIResponse<object>> AddBooking(AddBookingRequest req)
         {
-            try
+            if (req.userID == null || req.ScheduleID == null || req.seatID == null)
             {
-                if (req.userID == null || req.ScheduleID == null || req.seatID == null)
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 400,
+                    Message = "Property should not be null!",
+                    Data = null
+                };
+                return errorResponse;
+            }
+            using (var transaction = _db.Database.BeginTransaction())
+            {
+                try
+                {
+                    var unavailSeatSelected = await (from bh in _db.BookingHeader
+                                                     join bd in _db.BookingDetail on bh.BookingHeaderID equals bd.BookingHeaderID
+                                                     where bh.ScheduleID == req.ScheduleID && req.seatID.Contains(bd.StudioSeatID)
+                                                     select bd.StudioSeatID).ToListAsync();
+
+                    if (unavailSeatSelected.Any())
+                    {
+                        var errorResponse = new APIResponse<object>
+                        {
+                            Status = 409,
+                            Message = "One or more seats are already taken.",
+                            Data = null
+                        };
+
+                        return errorResponse;
+                    }
+
+                    BookingHeader newBookingHeader = new BookingHeader
+                    {
+                        UserID = req.userID,
+                        ScheduleID = req.ScheduleID,
+                        BookingDate = DateTime.Now
+                    };
+
+                    _db.BookingHeader.Add(newBookingHeader);
+                    await _db.SaveChangesAsync();
+
+
+
+                    var bookingHeaderID = newBookingHeader.BookingHeaderID;
+                    List<BookingDetail> bookingDetailList = new List<BookingDetail>();
+
+                    foreach (int number in req.seatID)
+                    {
+                        BookingDetail newBookingDetail = new BookingDetail
+                        {
+                            BookingHeaderID = bookingHeaderID,
+                            StudioSeatID = number
+                        };
+                        bookingDetailList.Add(newBookingDetail);
+                    }
+
+                    _db.BookingDetail.AddRange(bookingDetailList);
+                    await _db.SaveChangesAsync();
+                    transaction.Commit();
+
+                    var response = new APIResponse<object>
+                    {
+                        Status = 200,
+                        Message = "Success",
+                        Data = bookingHeaderID
+                    };
+
+                    return response;
+                }
+                catch (Exception ex)
                 {
                     var errorResponse = new APIResponse<object>
                     {
-                        Status = 400,
-                        Message = "Property should not be null!",
+                        Status = 500,
+                        Message = "Internal Server Error",
                         Data = null
                     };
                     return errorResponse;
                 }
-                using (var transaction = _db.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        var unavailSeatSelected = await (from bh in _db.BookingHeader
-                                                         join bd in _db.BookingDetail on bh.BookingHeaderID equals bd.BookingHeaderID
-                                                         where bh.ScheduleID == req.ScheduleID && req.seatID.Contains(bd.StudioSeatID)
-                                                         select bd.StudioSeatID).ToListAsync();
-
-                        // Check if any of the requested seats are already taken
-                        if (unavailSeatSelected.Any())
-                        {
-                            var errorResponse = new APIResponse<object>
-                            {
-                                Status = 409, // Conflict status code
-                                Message = "One or more seats are already taken.",
-                                Data = 0 // Provide a default or meaningful value for int
-                            };
-
-                            return errorResponse;
-                        }
-
-                        BookingHeader newBookingHeader = new BookingHeader
-                        {
-                            UserID = req.userID,
-                            ScheduleID = req.ScheduleID,
-                            BookingDate = DateTime.Now
-                        };
-
-                        _db.BookingHeader.Add(newBookingHeader);
-                        await _db.SaveChangesAsync();
-                        transaction.Commit();
-
-
-
-                        int bookingHeaderID = newBookingHeader.BookingHeaderID;
-                        List<BookingDetail> bookingDetailList = new List<BookingDetail>();
-
-                        foreach (int number in req.seatID)
-                        {
-                            BookingDetail newBookingDetail = new BookingDetail
-                            {
-                                BookingHeaderID = bookingHeaderID,
-                                StudioSeatID = number
-                            };
-                            bookingDetailList.Add(newBookingDetail);
-                        }
-
-                        _db.BookingDetail.AddRange(bookingDetailList);
-                        await _db.SaveChangesAsync();
-
-                        var response = new APIResponse<object>
-                        {
-                            Status = 200,
-                            Message = "Success",
-                            Data = bookingHeaderID
-                        };
-
-                        return response;
-                    }
-                    catch (Exception ex)
-                    {
-                        var errorResponse = new APIResponse<object>
-                        {
-                            Status = 500,
-                            Message = "Internal Server Error",
-                            Data = null
-                        };
-                        return errorResponse;
-                    }
-                }
             }
-            catch (Exception ex)
-            {
-                var errorResponse = new APIResponse<object>
-                {
-                    Status = 500,
-                    Message = "Internal Server Error",
-                    Data = 0 // Provide a default or meaningful value for int
-                };
-                return errorResponse;
-            }
-        
+
         }
         
         public async Task<APIResponse<object>> AddPayment(AddPaymentRequest req)
@@ -164,7 +150,7 @@ namespace GalaxyCinemaBackEnd.Services
                 {
                     BookingHeaderID = req.BookingHeaderID,
                     Amount = req.SeatQty * studioPrice,
-                    IsPaid = true,
+                    IsPaid = true, // sementara always true
                 };
 
                 _db.Payment.Add(newPayment);
@@ -183,7 +169,6 @@ namespace GalaxyCinemaBackEnd.Services
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it appropriately
                 var errorResponse = new APIResponse<object>
                 {
                     Status = 500,
