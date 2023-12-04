@@ -2,6 +2,7 @@
 using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
 using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -21,6 +22,7 @@ namespace GalaxyCinemaBackEnd.Controllers
         }
 
         [HttpGet("getMovies")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get()
         {
 
@@ -33,6 +35,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                                     Poster = mov.Poster,
                                     Synopsis = mov.Synopsis,
                                     Duration = mov.Duration,
+                                    Rating = mov.Rating,
                                     IsPlaying = mov.ReleaseDate < DateTime.Now,
                                     Casts = mov.Casts,
                                     Writer = mov.Writer
