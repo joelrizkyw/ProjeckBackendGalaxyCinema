@@ -1,5 +1,6 @@
 ﻿using GalaxyCinemaBackEnd.Data;
 using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
+using GalaxyCinemaBackEnd.Models.Request;
 using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
 using Microsoft.AspNetCore.Authorization;
@@ -35,10 +36,15 @@ namespace GalaxyCinemaBackEnd.Controllers
                                     Poster = mov.Poster,
                                     Synopsis = mov.Synopsis,
                                     Duration = mov.Duration,
+<<<<<<< HEAD
                                     Rating = mov.Rating,
                                     IsPlaying = mov.ReleaseDate < DateTime.Now,
+=======
+                                    ReleaseDate = mov.ReleaseDate,
+>>>>>>> 5aa3404ec19ba2d026e85aedfc67776ddb8673cf
                                     Casts = mov.Casts,
-                                    Writer = mov.Writer
+                                    Writer = mov.Writer,
+                                    Rating = mov.Rating
                                 }).ToListAsync();
 
             var response = new APIResponse<IEnumerable<GetMovieResponse>>
@@ -65,10 +71,10 @@ namespace GalaxyCinemaBackEnd.Controllers
                             Poster = mov.Poster,
                             Synopsis = mov.Synopsis,
                             Duration = mov.Duration,
-                            Rating = mov.Rating,
-                            IsPlaying = mov.ReleaseDate < DateTime.Now,
+                            ReleaseDate = mov.ReleaseDate,
                             Casts = mov.Casts,
-                            Writer = mov.Writer
+                            Writer = mov.Writer,
+                            Rating = mov.Rating,
                         }).FirstOrDefaultAsync();
 
             if (movie == null)
@@ -146,6 +152,109 @@ namespace GalaxyCinemaBackEnd.Controllers
                 Status = 200,
                 Message = "Success",
                 Data = movieSchedule
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPost("addMovie")]
+        public async Task<IActionResult> AddMovie([FromBody] MovieBodyRequest req)
+        {
+            var movie = new Movie
+            {
+                Title = req.Title,
+                Director = req.Director,
+                Poster = req.Poster,
+                Synopsis = req.Synopsis,
+                Duration = req.Duration,
+                ReleaseDate = req.ReleaseDate,
+                Casts = req.Casts,
+                Writer = req.Writer,
+                Rating = req.Rating
+            };
+
+            _db.Movie.Add(movie);
+            await _db.SaveChangesAsync();
+
+            var response = new APIResponse<object>
+            {
+                Status = 200,
+                Message = "Success",
+                Data = null
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPut("updateMovie")]
+        public async Task<IActionResult> UpdateMovie(int movieID, [FromBody] MovieBodyRequest req)
+        {
+            var movie = await (from mov in _db.Movie
+                               where mov.MovieID == movieID
+                               select mov).FirstOrDefaultAsync();
+
+            if (movie == null)
+            {
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 404,
+                    Message = "Movie Not Found",
+                    Data = null
+                };
+
+                return NotFound(errorResponse);
+            }
+
+            movie.Title = req.Title;
+            movie.Director = req.Director;
+            movie.Poster = req.Poster;
+            movie.Synopsis = req.Synopsis;
+            movie.Duration = req.Duration;
+            movie.ReleaseDate = req.ReleaseDate;
+            movie.Casts = req.Casts;
+            movie.Writer = req.Writer;
+            movie.Rating = req.Rating;
+
+            await _db.SaveChangesAsync();
+
+            var response = new APIResponse<object>
+            {
+                Status = 200,
+                Message = "Success",
+                Data = null
+            };
+
+            return Ok(response);
+        }
+
+        [HttpDelete("deleteMovie")]
+        public async Task<IActionResult> DeleteMovie(int movieID)
+        {
+
+            var movie = await (from mov in _db.Movie
+                               where mov.MovieID == movieID
+                               select mov).FirstOrDefaultAsync();
+
+            if (movie == null)
+            {
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 404,
+                    Message = "Movie Not Found",
+                    Data = null
+                };
+
+                return NotFound(errorResponse);
+            }
+
+            _db.Movie.Remove(movie);
+            await _db.SaveChangesAsync();
+
+            var response = new APIResponse<object>
+            {
+                Status = 200,
+                Message = "Success",
+                Data = null
             };
 
             return Ok(response);
