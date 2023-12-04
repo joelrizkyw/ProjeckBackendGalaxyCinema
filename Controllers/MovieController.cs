@@ -24,7 +24,7 @@ namespace GalaxyCinemaBackEnd.Controllers
         }
 
         [HttpGet("getMovies")]
-        public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get([Required] string status)
+        public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get([FromBody] string status)
         {
             List<GetMovieResponse> movieList = null;
 
