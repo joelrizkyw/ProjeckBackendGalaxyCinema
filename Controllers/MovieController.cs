@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 
@@ -23,28 +24,54 @@ namespace GalaxyCinemaBackEnd.Controllers
         }
 
         [HttpGet("getMovies")]
-        public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get()
+        public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get([Required] string status)
         {
+            List<GetMovieResponse> movieList = null;
 
-            var movieList = await (from mov in _db.Movie
-                                select new GetMovieResponse
-                                {
-                                    Id = mov.MovieID,
-                                    Title = mov.Title,
-                                    Director = mov.Director,
-                                    Poster = mov.Poster,
-                                    Synopsis = mov.Synopsis,
-                                    Duration = mov.Duration,
-                                    ReleaseDate = mov.ReleaseDate,
-                                    Casts = mov.Casts,
-                                    Writer = mov.Writer,
-                                    Rating = mov.Rating
-                                }).ToListAsync();
+            if (status == "now_playing")
+            {
+
+                movieList = await (from mov in _db.Movie
+                                       where mov.ReleaseDate < DateTime.Now
+                                       select new GetMovieResponse
+                                       {
+                                           Id = mov.MovieID,
+                                           Title = mov.Title,
+                                           Director = mov.Director,
+                                           Poster = mov.Poster,
+                                           Synopsis = mov.Synopsis,
+                                           Duration = mov.Duration,
+                                           ReleaseDate = mov.ReleaseDate,
+                                           Casts = mov.Casts,
+                                           Writer = mov.Writer,
+                                           Rating = mov.Rating
+                                       }).ToListAsync();
+            }
+
+            else if (status == "upcoming")
+            {
+
+                movieList = await (from mov in _db.Movie
+                                       where mov.ReleaseDate > DateTime.Now
+                                       select new GetMovieResponse
+                                       {
+                                           Id = mov.MovieID,
+                                           Title = mov.Title,
+                                           Director = mov.Director,
+                                           Poster = mov.Poster,
+                                           Synopsis = mov.Synopsis,
+                                           Duration = mov.Duration,
+                                           ReleaseDate = mov.ReleaseDate,
+                                           Casts = mov.Casts,
+                                           Writer = mov.Writer,
+                                           Rating = mov.Rating
+                                       }).ToListAsync();
+            }
 
             var response = new APIResponse<IEnumerable<GetMovieResponse>>
             {
                 Status = 200,
-                Message = "success",
+                Message = "Success",
                 Data = movieList
             };
 
