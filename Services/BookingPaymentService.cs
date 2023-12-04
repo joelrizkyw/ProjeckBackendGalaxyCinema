@@ -150,7 +150,7 @@ namespace GalaxyCinemaBackEnd.Services
                 {
                     BookingHeaderID = req.BookingHeaderID,
                     Amount = req.SeatQty * studioPrice,
-                    IsPaid = true, // sementara always true
+                    IsPaid = false,
                 };
 
                 _db.Payment.Add(newPayment);
