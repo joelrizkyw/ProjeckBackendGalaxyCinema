@@ -23,7 +23,6 @@ namespace GalaxyCinemaBackEnd.Controllers
         }
 
         [HttpGet("getMovies")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get()
         {
 
@@ -36,12 +35,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                                     Poster = mov.Poster,
                                     Synopsis = mov.Synopsis,
                                     Duration = mov.Duration,
-<<<<<<< HEAD
-                                    Rating = mov.Rating,
-                                    IsPlaying = mov.ReleaseDate < DateTime.Now,
-=======
                                     ReleaseDate = mov.ReleaseDate,
->>>>>>> 5aa3404ec19ba2d026e85aedfc67776ddb8673cf
                                     Casts = mov.Casts,
                                     Writer = mov.Writer,
                                     Rating = mov.Rating
