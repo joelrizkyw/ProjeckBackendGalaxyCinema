@@ -3,6 +3,7 @@ using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
 using GalaxyCinemaBackEnd.Models.Request;
 using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;

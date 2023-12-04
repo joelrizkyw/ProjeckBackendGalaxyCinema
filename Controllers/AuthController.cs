@@ -4,6 +4,8 @@ using GalaxyCinemaBackEnd.Models.GalaxyCinemaDB;
 using GalaxyCinemaBackEnd.Models.Request;
 using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -196,6 +198,16 @@ namespace GalaxyCinemaBackEnd.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = tokenHandler.WriteToken(token);
 
+            HttpContext.Response.Cookies.Append("token", jwtToken,
+                new CookieOptions
+                {
+                    Expires = expires,
+                    HttpOnly = true,
+                    Secure = true,
+                    IsEssential = true,
+                    SameSite = SameSiteMode.None
+                });
+
             var loginResponse = new LoginResponse
             {
                 Status = 200,
@@ -216,6 +228,24 @@ namespace GalaxyCinemaBackEnd.Controllers
 
 
             return Ok(loginResponse);
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+      
+            Response.Cookies.Delete("token", new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddYears(-1),
+                SameSite = SameSiteMode.None,
+                Secure = true
+            });
+
+            return Ok(new { message = "Logout successful" });
         }
     }
 }
