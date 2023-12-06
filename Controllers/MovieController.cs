@@ -5,10 +5,13 @@ using GalaxyCinemaBackEnd.Models.Response;
 using GalaxyCinemaBackEnd.Output;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 
 namespace GalaxyCinemaBackEnd.Controllers
@@ -18,16 +21,19 @@ namespace GalaxyCinemaBackEnd.Controllers
     public class MovieController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
-        public MovieController(ApplicationDbContext db)
+        private readonly IWebHostEnvironment environment;
+        public MovieController(ApplicationDbContext db, IWebHostEnvironment environment)
         {
             _db = db;
+            this.environment = environment;
         }
 
         [HttpGet("getMovies")]
         public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get([Required] string status)
         {
             List<GetMovieResponse> movieList = null;
-
+            string imagePath = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/images/poster/";
+            
             if (status == "now_playing")
             {
 
@@ -38,7 +44,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                                            Id = mov.MovieID,
                                            Title = mov.Title,
                                            Director = mov.Director,
-                                           Poster = mov.Poster,
+                                           Poster = $"{imagePath}{mov.Poster}",
                                            Synopsis = mov.Synopsis,
                                            Duration = mov.Duration,
                                            ReleaseDate = mov.ReleaseDate,
@@ -58,7 +64,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                                            Id = mov.MovieID,
                                            Title = mov.Title,
                                            Director = mov.Director,
-                                           Poster = mov.Poster,
+                                           Poster = $"{imagePath}{mov.Poster}",
                                            Synopsis = mov.Synopsis,
                                            Duration = mov.Duration,
                                            ReleaseDate = mov.ReleaseDate,
@@ -81,7 +87,7 @@ namespace GalaxyCinemaBackEnd.Controllers
         [HttpGet("getMovieDetail")]
         public async Task<ActionResult<GetMovieResponse>> GetMovieDetail(int movieID)
         {
-
+            string imagePath = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/images/poster/";
             var movie = await (from mov in _db.Movie
                         where mov.MovieID == movieID
                         select new GetMovieResponse
@@ -89,7 +95,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                             Id = mov.MovieID,
                             Title = mov.Title,
                             Director = mov.Director,
-                            Poster = mov.Poster,
+                            Poster = $"{imagePath}{mov.Poster}",
                             Synopsis = mov.Synopsis,
                             Duration = mov.Duration,
                             ReleaseDate = mov.ReleaseDate,
@@ -179,106 +185,270 @@ namespace GalaxyCinemaBackEnd.Controllers
         }
 
         [HttpPost("addMovie")]
-        public async Task<IActionResult> AddMovie([FromBody] MovieBodyRequest req)
+        public async Task<IActionResult> AddMovie([FromForm] AddMovieRequest req)
         {
-            var movie = new Movie
+            try
             {
-                Title = req.Title,
-                Director = req.Director,
-                Poster = req.Poster,
-                Synopsis = req.Synopsis,
-                Duration = req.Duration,
-                ReleaseDate = req.ReleaseDate,
-                Casts = req.Casts,
-                Writer = req.Writer,
-                Rating = req.Rating
-            };
+                var movieTitleCamelCase = ToCamelCase(req.Title);
+                var Filepath = GetFilepath();
+                if (!Directory.Exists(Filepath))
+                {
+                    Directory.CreateDirectory(Filepath);
+                }
 
-            _db.Movie.Add(movie);
-            await _db.SaveChangesAsync();
+                var fileExtension = Path.GetExtension(req.PosterImage.FileName);
 
-            var response = new APIResponse<object>
+                var fullImageName = $"{movieTitleCamelCase}{fileExtension}";
+                var imagepath = Path.Combine(Filepath, fullImageName);
+
+                var existingFiles = Directory.GetFiles(Filepath)
+                                    .Where(filePath => Path.GetFileNameWithoutExtension(filePath) == movieTitleCamelCase);
+
+                if (existingFiles.Any())
+                {
+                    var errorResponse = new APIResponse<object>
+                    {
+                        Status = 409,
+                        Message = "A file with the same name already exists.",
+                        Data = null
+                    };
+
+                    return Conflict(errorResponse);
+                }
+
+                var movie = new Movie
+                {
+                    Title = req.Title,
+                    Director = req.Director,
+                    Poster = fullImageName,
+                    Synopsis = req.Synopsis,
+                    Duration = int.Parse(req.Duration),
+                    ReleaseDate = req.ReleaseDate,
+                    Casts = req.Casts,
+                    Writer = req.Writer,
+                    Rating = req.Rating
+                };
+
+                _db.Movie.Add(movie);
+                await _db.SaveChangesAsync();
+
+                using (FileStream stream = System.IO.File.Create(imagepath))
+                {
+                    await req.PosterImage.CopyToAsync(stream);
+                }
+
+                var response = new APIResponse<object>
+                {
+                    Status = 200,
+                    Message = "Success",
+                    Data = null
+                };
+
+                return Ok(response);
+
+            }
+            catch (Exception ex)
             {
-                Status = 200,
-                Message = "Success",
-                Data = null
-            };
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 500,
+                    Message = "Internal Server Error",
+                    Data = null
+                };
+                return StatusCode(errorResponse.Status, errorResponse);
+            }
 
-            return Ok(response);
         }
 
         [HttpPut("updateMovie")]
-        public async Task<IActionResult> UpdateMovie(int movieID, [FromBody] MovieBodyRequest req)
+        public async Task<IActionResult> UpdateMovie([FromForm] UpdateMovieRequest req)
         {
-            var movie = await (from mov in _db.Movie
-                               where mov.MovieID == movieID
-                               select mov).FirstOrDefaultAsync();
-
-            if (movie == null)
+            try
             {
-                var errorResponse = new APIResponse<object>
+                var movie = await (from mov in _db.Movie
+                                   where mov.MovieID == int.Parse(req.MovieID)
+                                   select mov).FirstOrDefaultAsync();
+
+                if (movie == null)
                 {
-                    Status = 404,
-                    Message = "Movie Not Found",
+                    var errorResponse = new APIResponse<object>
+                    {
+                        Status = 404,
+                        Message = "Movie Not Found",
+                        Data = null
+                    };
+
+                    return NotFound(errorResponse);
+                }
+
+                var fullImageName = req.OldPoster;
+
+                if(req.NewPoster != null)
+                {
+                    var oldMovieTitleCamelCase = ToCamelCase(req.OldTitle);
+                    string Filepath = GetFilepath();
+
+                    var existingFiles = Directory.GetFiles(Filepath)
+                        .Where(filePath => Path.GetFileNameWithoutExtension(filePath) == oldMovieTitleCamelCase);
+
+                    if (existingFiles.Any())
+                    {
+                        foreach (var filePath in existingFiles)
+                        {
+                            System.IO.File.Delete(filePath);
+                        }
+
+                    }
+
+                    //add yang baru
+
+                    var newMovieTitleCamelCase = ToCamelCase(req.NewTitle);
+                    if (!Directory.Exists(Filepath))
+                    {
+                        Directory.CreateDirectory(Filepath);
+                    }
+
+                    var fileExtension = Path.GetExtension(req.NewPoster.FileName);
+
+                    fullImageName = $"{newMovieTitleCamelCase}{fileExtension}";
+                    var imagepath = Path.Combine(Filepath, fullImageName);
+
+                    using (FileStream stream = System.IO.File.Create(imagepath))
+                    {
+                        await req.NewPoster.CopyToAsync(stream);
+                    }
+                }
+
+               
+
+
+                movie.Title = req.NewTitle;
+                movie.Director = req.Director;
+                movie.Poster = fullImageName;
+                movie.Synopsis = req.Synopsis;
+                movie.Duration = int.Parse(req.Duration);
+                movie.ReleaseDate = req.ReleaseDate;
+                movie.Casts = req.Casts;
+                movie.Writer = req.Writer;
+                movie.Rating = req.Rating;
+
+                await _db.SaveChangesAsync();
+
+                var response = new APIResponse<object>
+                {
+                    Status = 200,
+                    Message = "Success",
                     Data = null
                 };
 
-                return NotFound(errorResponse);
+                return Ok(response);
             }
-
-            movie.Title = req.Title;
-            movie.Director = req.Director;
-            movie.Poster = req.Poster;
-            movie.Synopsis = req.Synopsis;
-            movie.Duration = req.Duration;
-            movie.ReleaseDate = req.ReleaseDate;
-            movie.Casts = req.Casts;
-            movie.Writer = req.Writer;
-            movie.Rating = req.Rating;
-
-            await _db.SaveChangesAsync();
-
-            var response = new APIResponse<object>
+            catch (Exception ex)
             {
-                Status = 200,
-                Message = "Success",
-                Data = null
-            };
-
-            return Ok(response);
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 500,
+                    Message = "Internal Server Error",
+                    Data = null
+                };
+                return StatusCode(errorResponse.Status, errorResponse);
+            }
         }
 
-        [HttpDelete("deleteMovie")]
-        public async Task<IActionResult> DeleteMovie(int movieID)
+        [HttpDelete("deleteMovie/{movieID}")]
+        public async Task<IActionResult> DeleteMovie(int? movieID)
         {
 
-            var movie = await (from mov in _db.Movie
-                               where mov.MovieID == movieID
-                               select mov).FirstOrDefaultAsync();
-
-            if (movie == null)
+            try
             {
-                var errorResponse = new APIResponse<object>
+                var movie = await (from mov in _db.Movie
+                                   where mov.MovieID == movieID
+                                   select mov).FirstOrDefaultAsync();
+
+                if (movie == null)
                 {
-                    Status = 404,
-                    Message = "Movie Not Found",
+                    var errorResponse = new APIResponse<object>
+                    {
+                        Status = 404,
+                        Message = "Movie Not Found",
+                        Data = null
+                    };
+
+                    return NotFound(errorResponse);
+                }
+
+                var movieTitleCamelCase = ToCamelCase(movie.Title);
+                string Filepath = GetFilepath();
+
+                var existingFiles = Directory.GetFiles(Filepath)
+                    .Where(filePath => Path.GetFileNameWithoutExtension(filePath) == movieTitleCamelCase);
+
+                if (existingFiles.Any())
+                {
+                    foreach (var filePath in existingFiles)
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+
+                }
+                else
+                {
+                    var errorResponse = new APIResponse<object>
+                    {
+                        Status = 404,
+                        Message = "Movie Poster Not Found.",
+                        Data = null
+                    };
+
+                    return NotFound(errorResponse);
+                }
+
+                _db.Movie.Remove(movie);
+                await _db.SaveChangesAsync();
+                var response = new APIResponse<object>
+                {
+                    Status = 200,
+                    Message = "Success",
                     Data = null
                 };
 
-                return NotFound(errorResponse);
+                return Ok(response);
+               
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 500,
+                    Message = "Internal Server Error",
+                    Data = null
+                };
+                return StatusCode(errorResponse.Status, errorResponse);
             }
 
-            _db.Movie.Remove(movie);
-            await _db.SaveChangesAsync();
+        }
 
-            var response = new APIResponse<object>
+
+
+        private string GetFilepath()
+        {
+            return this.environment.WebRootPath + "\\images\\poster\\";
+        }
+
+        private string ToCamelCase(string input)
+        {
+
+            string[] words = input.ToLower().Split(' ');
+            var result = words[0];
+
+            for (int i = 1; i < words.Length; i++)
             {
-                Status = 200,
-                Message = "Success",
-                Data = null
-            };
+                var firstLetter = char.ToUpper(words[i][0]);
+                var remainingWord = words[i].Substring(1);
+                result = result + firstLetter + remainingWord;
+            }
 
-            return Ok(response);
+            return result;
         }
     }
 }
