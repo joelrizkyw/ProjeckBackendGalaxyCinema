@@ -96,7 +96,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                 }
                 catch (Exception ex)
                 {
-             
+                    // Log the exception or handle it appropriately
                     var errorResponse = new APIResponse<object>
                     {
                         Status = 500,
