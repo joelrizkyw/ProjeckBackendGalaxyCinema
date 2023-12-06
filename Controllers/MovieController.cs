@@ -29,7 +29,7 @@ namespace GalaxyCinemaBackEnd.Controllers
         }
 
         [HttpGet("getMovies")]
-        public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get([FromBody] string status)
+        public async Task<ActionResult<IEnumerable<GetMovieResponse>>> Get(string status)
         {
             List<GetMovieResponse> movieList = null;
             string imagePath = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/images/poster/";
@@ -74,6 +74,19 @@ namespace GalaxyCinemaBackEnd.Controllers
                                        }).ToListAsync();
             }
 
+            else
+            {
+
+                var errorResponse = new APIResponse<object>
+                {
+                    Status = 404,
+                    Message = "Movie list not found. Please enter valid movie status!",
+                    Data = null
+                };
+
+                return NotFound(errorResponse);
+            }
+
             var response = new APIResponse<IEnumerable<GetMovieResponse>>
             {
                 Status = 200,
@@ -88,6 +101,7 @@ namespace GalaxyCinemaBackEnd.Controllers
         public async Task<ActionResult<GetMovieResponse>> GetMovieDetail(int movieID)
         {
             string imagePath = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}/images/poster/";
+            
             var movie = await (from mov in _db.Movie
                         where mov.MovieID == movieID
                         select new GetMovieResponse
@@ -109,7 +123,7 @@ namespace GalaxyCinemaBackEnd.Controllers
                 var errorResponse = new APIResponse<object>
                 {
                     Status = 404,
-                    Message = "Movie Not Found",
+                    Message = "Movie not found. Please enter valid movie ID!",
                     Data = null
                 };
 
